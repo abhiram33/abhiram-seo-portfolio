@@ -27,7 +27,32 @@ document.querySelectorAll('[data-tab]').forEach((tab) => tab.addEventListener('c
 const form = document.querySelector('[data-contact-form]');
 const formContent = document.querySelector('[data-form-content]');
 const formSuccess = document.querySelector('[data-form-success]');
-form.addEventListener('submit', (event) => { event.preventDefault(); const data = new FormData(form); const submit = form.querySelector('button'); submit.disabled = true; submit.textContent = 'Preparing Inquiry...'; setTimeout(() => { const subject = `SEO Inquiry from ${data.get('name')} - [${data.get('service')}]`; const body = `Name: ${data.get('name')}\nEmail: ${data.get('email')}\nWebsite/URL: ${data.get('website')}\nService Interest: ${data.get('service')}\n\nMessage:\n${data.get('message')}`; window.location.href = `mailto:abhiramkichuz@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; formContent.hidden = true; formSuccess.hidden = false; }, 600); });
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const data = new FormData(form);
+  const submit = form.querySelector('button');
+  submit.disabled = true;
+  submit.textContent = 'Opening WhatsApp...';
+  setTimeout(() => {
+    const name = data.get('name');
+    const email = data.get('email');
+    const website = data.get('website');
+    const service = data.get('service');
+    const message = data.get('message');
+
+    let body = `Hello Abhiram,\n\nI would like to make an enquiry through your SEO portfolio.\n\nName: ${name}\nEmail: ${email}`;
+    if (website) {
+      body += `\nWebsite/URL: ${website}`;
+    }
+    body += `\nService: ${service}\n\nMessage:\n${message}\n\nThank you.`;
+
+    const whatsappUrl = `https://wa.me/918848677810?text=${encodeURIComponent(body)}`;
+    window.open(whatsappUrl, '_blank');
+
+    formContent.hidden = true;
+    formSuccess.hidden = false;
+  }, 600);
+});
 document.querySelector('[data-reset-form]').addEventListener('click', () => { form.reset(); formContent.hidden = false; formSuccess.hidden = true; const submit = form.querySelector('button'); submit.disabled = false; submit.innerHTML = `Submit Inquiry ${icon('send')}`; replaceIcons(); });
 const backToTopBtn = document.querySelector('[data-back-to-top]');
 if (backToTopBtn) {
