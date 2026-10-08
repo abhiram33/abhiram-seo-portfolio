@@ -142,3 +142,110 @@
   }
 }
 
+/* Dedicated WhatsApp Enquiry Section */
+.whatsapp-highlight a {
+  color: #0f172a;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+.whatsapp-highlight a:hover {
+  color: #059669;
+}
+.whatsapp-badge {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+.whatsapp-badge>span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
+}
+.whatsapp-badge b {
+  display: block;
+  color: #0f172a;
+  font-size: 13px;
+  line-height: 1.3;
+}
+.whatsapp-badge small {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 11px;
+}
+.whatsapp-direct-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 18px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.1);
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.whatsapp-direct-button:hover {
+  background: #1e293b;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+}
+.whatsapp-direct-button svg {
+  width: 15px;
+  height: 15px;
+}
+.form-error {
+  margin-top: -4px;
+  padding: 10px 14px;
+  border: 1px solid #fecdd3;
+  border-radius: 10px;
+  background: #fff1f2;
+  color: #e11d48;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.form-card input.input-invalid,
+.form-card textarea.input-invalid {
+  border-color: #f43f5e;
+  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.15);
+}
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+.success-actions .whatsapp-direct-button {
+  margin-top: 0;
+}
+.success-actions button {
+  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: white;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.success-actions button:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+

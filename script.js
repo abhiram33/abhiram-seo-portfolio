@@ -27,33 +27,105 @@ document.querySelectorAll('[data-tab]').forEach((tab) => tab.addEventListener('c
 const form = document.querySelector('[data-contact-form]');
 const formContent = document.querySelector('[data-form-content]');
 const formSuccess = document.querySelector('[data-form-success]');
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const data = new FormData(form);
-  const submit = form.querySelector('button');
-  submit.disabled = true;
-  submit.textContent = 'Opening WhatsApp...';
-  setTimeout(() => {
-    const name = data.get('name');
-    const email = data.get('email');
-    const website = data.get('website');
-    const service = data.get('service');
-    const message = data.get('message');
+const formError = document.querySelector('[data-form-error]');
+const chatLink = document.querySelector('[data-whatsapp-chat-link]');
+
+if (form) {
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (formError) formError.hidden = true;
+    form.querySelectorAll('.input-invalid').forEach((el) => el.classList.remove('input-invalid'));
+
+    const nameInput = form.querySelector('[name="name"]');
+    const emailInput = form.querySelector('[name="email"]');
+    const phoneInput = form.querySelector('[name="phone"]');
+    const websiteInput = form.querySelector('[name="website"]');
+    const serviceInput = form.querySelector('[name="service"]');
+    const messageInput = form.querySelector('[name="message"]');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const email = emailInput ? emailInput.value.trim() : '';
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+    const website = websiteInput ? websiteInput.value.trim() : '';
+    const service = serviceInput ? serviceInput.value.trim() : '';
+    const message = messageInput ? messageInput.value.trim() : '';
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const errors = [];
+
+    if (!name) {
+      errors.push('Please enter your name.');
+      if (nameInput) nameInput.classList.add('input-invalid');
+    }
+
+    if (!email || !emailRegex.test(email)) {
+      errors.push('Please enter a valid email address.');
+      if (emailInput) emailInput.classList.add('input-invalid');
+    }
+
+    if (!message) {
+      errors.push('Please provide your project goals or inquiry details.');
+      if (messageInput) messageInput.classList.add('input-invalid');
+    }
+
+    if (errors.length > 0) {
+      if (formError) {
+        formError.textContent = errors.join(' ');
+        formError.hidden = false;
+      }
+      const firstInvalid = form.querySelector('.input-invalid');
+      if (firstInvalid) firstInvalid.focus();
+      return;
+    }
+
+    const submit = form.querySelector('button[type="submit"]');
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = 'Opening WhatsApp...';
+    }
 
     let body = `Hello Abhiram,\n\nI would like to make an enquiry through your SEO portfolio.\n\nName: ${name}\nEmail: ${email}`;
+    if (phone) {
+      body += `\nPhone: ${phone}`;
+    }
     if (website) {
       body += `\nWebsite/URL: ${website}`;
     }
-    body += `\nService: ${service}\n\nMessage:\n${message}\n\nThank you.`;
+    if (service) {
+      body += `\nService: ${service}`;
+    }
+    body += `\n\nMessage:\n${message}\n\nThank you.`;
 
     const whatsappUrl = `https://wa.me/918848677810?text=${encodeURIComponent(body)}`;
-    window.open(whatsappUrl, '_blank');
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
 
-    formContent.hidden = true;
-    formSuccess.hidden = false;
-  }, 600);
-});
-document.querySelector('[data-reset-form]').addEventListener('click', () => { form.reset(); formContent.hidden = false; formSuccess.hidden = true; const submit = form.querySelector('button'); submit.disabled = false; submit.innerHTML = `Submit Inquiry ${icon('send')}`; replaceIcons(); });
+    if (chatLink) {
+      chatLink.href = whatsappUrl;
+    }
+
+    if (formContent && formSuccess) {
+      formContent.hidden = true;
+      formSuccess.hidden = false;
+    }
+  });
+
+  const resetBtn = document.querySelector('[data-reset-form]');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      form.querySelectorAll('.input-invalid').forEach((el) => el.classList.remove('input-invalid'));
+      if (formError) formError.hidden = true;
+      if (formContent) formContent.hidden = false;
+      if (formSuccess) formSuccess.hidden = true;
+      const submit = form.querySelector('button[type="submit"]');
+      if (submit) {
+        submit.disabled = false;
+        submit.innerHTML = `Start a WhatsApp Enquiry ${icon('send')}`;
+        replaceIcons();
+      }
+    });
+  }
+}
 const backToTopBtn = document.querySelector('[data-back-to-top]');
 if (backToTopBtn) {
   const prefersReducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
