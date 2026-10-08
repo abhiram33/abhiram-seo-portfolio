@@ -29,7 +29,19 @@ const formContent = document.querySelector('[data-form-content]');
 const formSuccess = document.querySelector('[data-form-success]');
 form.addEventListener('submit', (event) => { event.preventDefault(); const data = new FormData(form); const submit = form.querySelector('button'); submit.disabled = true; submit.textContent = 'Preparing Inquiry...'; setTimeout(() => { const subject = `SEO Inquiry from ${data.get('name')} - [${data.get('service')}]`; const body = `Name: ${data.get('name')}\nEmail: ${data.get('email')}\nWebsite/URL: ${data.get('website')}\nService Interest: ${data.get('service')}\n\nMessage:\n${data.get('message')}`; window.location.href = `mailto:abhiramkichuz@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; formContent.hidden = true; formSuccess.hidden = false; }, 600); });
 document.querySelector('[data-reset-form]').addEventListener('click', () => { form.reset(); formContent.hidden = false; formSuccess.hidden = true; const submit = form.querySelector('button'); submit.disabled = false; submit.innerHTML = `Submit Inquiry ${icon('send')}`; replaceIcons(); });
-document.querySelector('[data-back-to-top]').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+const backToTopBtn = document.querySelector('[data-back-to-top]');
+if (backToTopBtn) {
+  const prefersReducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotionQuery.matches ? 'auto' : 'smooth'
+    });
+  });
+  window.addEventListener('scroll', () => {
+    backToTopBtn.classList.toggle('is-visible', window.scrollY > 400);
+  }, { passive: true });
+}
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (!prefersReducedMotion) window.addEventListener('scroll', () => { const progress = Math.min(window.scrollY / 800, 1); document.querySelector('[data-parallax-image]').style.transform = `translateY(${progress * 5}%)`; document.querySelector('[data-parallax-content]').style.transform = `translateY(${progress * 16}px)`; }, { passive: true });
