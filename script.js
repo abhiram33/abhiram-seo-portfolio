@@ -363,11 +363,40 @@ if (riveTransition && riveCanvas && window.rive) {
 
 const seoServiceSelect = document.getElementById('seo-service-select');
 const whatsappEnquiryBtn = document.getElementById('whatsapp-enquiry-btn');
+const seoSelectError = document.getElementById('seo-select-error');
+
 if (seoServiceSelect && whatsappEnquiryBtn) {
-  whatsappEnquiryBtn.addEventListener('click', () => {
-    const selectedService = seoServiceSelect.value || 'General SEO Enquiry';
+  seoServiceSelect.addEventListener('change', () => {
+    if (seoServiceSelect.value) {
+      seoServiceSelect.classList.remove('has-error');
+      if (seoSelectError) {
+        seoSelectError.hidden = true;
+      }
+    }
+  });
+
+  whatsappEnquiryBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    const selectedService = seoServiceSelect.value ? seoServiceSelect.value.trim() : '';
+
+    if (!selectedService) {
+      seoServiceSelect.classList.remove('has-error');
+      // trigger reflow to re-run shake animation if clicked multiple times
+      void seoServiceSelect.offsetWidth;
+      seoServiceSelect.classList.add('has-error');
+
+      if (seoSelectError) {
+        seoSelectError.hidden = false;
+      }
+      seoServiceSelect.focus();
+      return;
+    }
+
     const message = `Hello Abhiram,\n\nI would like to enquire about your SEO services.\n\nService required: ${selectedService}\n\nI found your portfolio and would like to discuss my requirements.\n\nThank you.`;
-    whatsappEnquiryBtn.href = `https://wa.me/918848677810?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/918848677810?text=${encodeURIComponent(message)}`;
+
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   });
 }
 
