@@ -165,18 +165,34 @@ if (servicesScroll) {
   let servicesEnhanced = false;
   let servicesFrame = 0;
   let servicesMaxShift = 0;
+  let servicesStickyTop = 0;
+  let servicesTravel = 1;
+
+  // Natural smoothstep easing (Hermite interpolation) for fluid organic gliding
+  const easeProgress = (t) => {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    return t * t * (3 - 2 * t);
+  };
 
   const measureServicesTrack = () => {
-    servicesMaxShift = Math.max(0, servicesWindow.clientWidth - servicesTrack.offsetWidth);
+    const comp = window.getComputedStyle(servicesStage);
+    const parsedTop = parseFloat(comp.top);
+    servicesStickyTop = Number.isFinite(parsedTop) ? parsedTop : (window.innerHeight * 0.14);
+    servicesTravel = Math.max(1, servicesScroll.offsetHeight - servicesStage.offsetHeight);
+    const available = servicesWindow.clientWidth - servicesTrack.offsetWidth;
+    servicesMaxShift = Math.max(0, available);
   };
 
   const updateServicesTrack = () => {
     servicesFrame = 0;
     if (!servicesEnhanced) return;
     const bounds = servicesScroll.getBoundingClientRect();
-    const travel = Math.max(1, servicesScroll.offsetHeight - servicesStage.offsetHeight);
-    const progress = Math.min(1, Math.max(0, (window.innerHeight * 0.15 - bounds.top) / travel));
-    servicesTrack.style.setProperty('--services-shift', `${servicesMaxShift * progress}px`);
+    const scrolled = servicesStickyTop - bounds.top;
+    const rawProgress = Math.min(1, Math.max(0, scrolled / servicesTravel));
+    const eased = easeProgress(rawProgress);
+    const shift = (servicesMaxShift * eased).toFixed(2);
+    servicesTrack.style.setProperty('--services-shift', `${shift}px`);
   };
 
   const scheduleServicesUpdate = () => {
