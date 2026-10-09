@@ -400,14 +400,14 @@ if (seoServiceSelect && whatsappEnquiryBtn) {
   });
 }
 
-// SEO Process scroll-triggered reveal animation
+// SEO Process continuous scroll-linked parallax animation
 (() => {
   const processSection = document.getElementById('process');
   const processGrid = document.querySelector('.process-grid');
   if (!processSection || !processGrid) return;
 
-  const leftCards = [...processGrid.querySelectorAll('[data-scroll-direction="left"]')];
-  const rightCards = [...processGrid.querySelectorAll('[data-scroll-direction="right"]')];
+  const leftCards = processGrid.querySelectorAll('[data-scroll-direction="left"]');
+  const rightCards = processGrid.querySelectorAll('[data-scroll-direction="right"]');
   if (!leftCards.length || !rightCards.length) return;
 
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -416,21 +416,35 @@ if (seoServiceSelect && whatsappEnquiryBtn) {
   let lastTxLeft = null;
   let lastTxRight = null;
 
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+  let sectionTop = 0;
+  let sectionHeight = 0;
+  let viewportHeight = window.innerHeight;
+  let maxDistance = 0;
 
-  const getResponsiveOffset = () => {
+  const getResponsiveDistance = () => {
     if (reducedMotionQuery.matches) return 0;
     const w = window.innerWidth;
-    if (w >= 1024) return 30;
-    if (w >= 640) return 16;
-    if (w >= 400) return 6;
+    if (w >= 1440) return 120;
+    if (w >= 1200) return 100;
+    if (w >= 1024) return 80;
+    if (w >= 768) return 60;
+    if (w >= 640) return 40;
+    if (w >= 440) return 18;
     return 0;
+  };
+
+  const measure = () => {
+    const rect = processSection.getBoundingClientRect();
+    sectionTop = rect.top + window.scrollY;
+    sectionHeight = rect.height;
+    viewportHeight = window.innerHeight;
+    maxDistance = getResponsiveDistance();
   };
 
   const updateOffsets = () => {
     rafId = 0;
 
-    if (!isIntersecting || reducedMotionQuery.matches) {
+    if (reducedMotionQuery.matches || maxDistance === 0) {
       if (lastTxLeft !== 0 || lastTxRight !== 0) {
         processGrid.style.setProperty('--process-tx-left', '0px');
         processGrid.style.setProperty('--process-tx-right', '0px');
@@ -440,63 +454,49 @@ if (seoServiceSelect && whatsappEnquiryBtn) {
       return;
     }
 
-    const maxOffset = getResponsiveOffset();
-    if (maxOffset === 0) {
-      if (lastTxLeft !== 0 || lastTxRight !== 0) {
-        processGrid.style.setProperty('--process-tx-left', '0px');
-        processGrid.style.setProperty('--process-tx-right', '0px');
-        lastTxLeft = 0;
-        lastTxRight = 0;
-      }
-      return;
+    const rangeStart = sectionTop - viewportHeight * 0.9;
+    const rangeEnd = sectionTop + sectionHeight - viewportHeight * 0.1;
+    const rangeSpan = Math.max(1, rangeEnd - rangeStart);
+
+    const progress = Math.max(0, Math.min(1, (window.scrollY - rangeStart) / rangeSpan));
+
+    // First row continuously translates LEFT: 0px -> -maxDistance
+    const txLeft = Number((-progress * maxDistance).toFixed(2));
+    // Second row continuously translates RIGHT: 0px -> +maxDistance
+    const txRight = Number((progress * maxDistance).toFixed(2));
+
+    if (txLeft !== lastTxLeft) {
+      processGrid.style.setProperty('--process-tx-left', `${txLeft}px`);
+      lastTxLeft = txLeft;
     }
-
-    const vh = window.innerHeight;
-    const startY = vh * 0.94;
-    const endY = vh * 0.55;
-    const travel = Math.max(1, startY - endY);
-
-    // Row 1 calculation (starts offset right, smoothly slides LEFT to 0)
-    const row1Rect = leftCards[0].getBoundingClientRect();
-    const rawProgress1 = Math.min(1, Math.max(0, (startY - row1Rect.top) / travel));
-    const eased1 = easeOutCubic(rawProgress1);
-    const txLeft = (1 - eased1) * maxOffset;
-
-    // Row 2 calculation (starts offset left, smoothly slides RIGHT to 0)
-    const row2Rect = rightCards[0].getBoundingClientRect();
-    const rawProgress2 = Math.min(1, Math.max(0, (startY - row2Rect.top) / travel));
-    const eased2 = easeOutCubic(rawProgress2);
-    const txRight = -(1 - eased2) * maxOffset;
-
-    const roundedLeft = Number(txLeft.toFixed(2));
-    const roundedRight = Number(txRight.toFixed(2));
-
-    if (roundedLeft !== lastTxLeft) {
-      processGrid.style.setProperty('--process-tx-left', `${roundedLeft}px`);
-      lastTxLeft = roundedLeft;
-    }
-    if (roundedRight !== lastTxRight) {
-      processGrid.style.setProperty('--process-tx-right', `${roundedRight}px`);
-      lastTxRight = roundedRight;
+    if (txRight !== lastTxRight) {
+      processGrid.style.setProperty('--process-tx-right', `${txRight}px`);
+      lastTxRight = txRight;
     }
   };
 
-  const scheduleUpdate = () => {
+  const onScroll = () => {
     if (!rafId && isIntersecting && !reducedMotionQuery.matches) {
       rafId = requestAnimationFrame(updateOffsets);
     }
+  };
+
+  const onResize = () => {
+    measure();
+    updateOffsets();
   };
 
   const observer = new IntersectionObserver(
     ([entry]) => {
       isIntersecting = entry.isIntersecting;
       if (isIntersecting) {
-        window.addEventListener('scroll', scheduleUpdate, { passive: true });
-        window.addEventListener('resize', scheduleUpdate);
-        scheduleUpdate();
+        measure();
+        updateOffsets();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onResize, { passive: true });
       } else {
-        window.removeEventListener('scroll', scheduleUpdate);
-        window.removeEventListener('resize', scheduleUpdate);
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onResize);
         if (rafId) {
           cancelAnimationFrame(rafId);
           rafId = 0;
@@ -506,17 +506,13 @@ if (seoServiceSelect && whatsappEnquiryBtn) {
     { rootMargin: '120px 0px 120px 0px', threshold: 0 }
   );
 
+  measure();
+  updateOffsets();
   observer.observe(processSection);
 
   reducedMotionQuery.addEventListener('change', () => {
-    if (reducedMotionQuery.matches) {
-      processGrid.style.setProperty('--process-tx-left', '0px');
-      processGrid.style.setProperty('--process-tx-right', '0px');
-      lastTxLeft = 0;
-      lastTxRight = 0;
-    } else {
-      scheduleUpdate();
-    }
+    measure();
+    updateOffsets();
   });
 })();
 
