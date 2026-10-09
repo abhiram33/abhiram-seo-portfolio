@@ -18,8 +18,11 @@ app.use(express.static(__dirname, {
   }
 }));
 
-// Route fallback to index.html
+// Route fallback to index.html (excluding assets)
 app.get('*', (req, res) => {
+  if (req.path.startsWith('/assets/')) {
+    return res.status(404).send('Not Found');
+  }
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
