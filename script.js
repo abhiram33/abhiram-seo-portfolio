@@ -516,4 +516,228 @@ if (seoServiceSelect && whatsappEnquiryBtn) {
   });
 })();
 
+// ==========================================================================
+// INTERACTIVE SEO SOLAR SYSTEM CONTROLLER
+// ==========================================================================
+(() => {
+  const solarSection = document.querySelector('[data-seo-solar-system]');
+  if (!solarSection) return;
+
+  const solarStage = solarSection.querySelector('[data-solar-stage]');
+  const pauseToggleBtn = solarSection.querySelector('[data-solar-pause-toggle], [data-solar-toggle]');
+  const planetButtons = [...solarSection.querySelectorAll('.solar-planet-btn')];
+  const orbitTracks = [...solarSection.querySelectorAll('.orbit-track')];
+  const chipButtons = [...solarSection.querySelectorAll('.solar-chip')];
+  
+  const infoPanel = solarSection.querySelector('#solarInfoPanel');
+  const badgeEl = solarSection.querySelector('#solarPlanetBadge');
+  const badgeTextEl = solarSection.querySelector('#solarBadgeText');
+  const titleEl = solarSection.querySelector('#solarServiceTitle');
+  const descEl = solarSection.querySelector('#solarServiceDesc');
+  const focusGridEl = solarSection.querySelector('#solarFocusGrid');
+  const inquireCtaEl = solarSection.querySelector('#solarInquireCta');
+
+  const PLANET_DATA = {
+    'on-page': {
+      index: 0,
+      name: 'On-Page SEO',
+      colorName: 'Electric Blue',
+      colorHex: '#3b82f6',
+      badgeText: 'Planet 01 · Electric Blue',
+      description: 'Optimize page titles, meta descriptions, headings, internal links, and content structure to help search engines understand your pages.',
+      focusAreas: [
+        'Keyword optimization',
+        'Meta titles and descriptions',
+        'Heading structure',
+        'Internal linking',
+        'On-page content optimization'
+      ],
+      contactOption: 'On-Page SEO'
+    },
+    'off-page': {
+      index: 1,
+      name: 'Off-Page SEO',
+      colorName: 'Purple',
+      colorHex: '#a855f7',
+      badgeText: 'Planet 02 · Purple',
+      description: 'Build website authority through relevant backlinks, digital PR, brand mentions, and trustworthy external signals.',
+      focusAreas: [
+        'Backlink building',
+        'Website authority',
+        'Digital PR',
+        'Brand mentions',
+        'Link acquisition'
+      ],
+      contactOption: 'Off-Page SEO & Link Building'
+    },
+    'technical': {
+      index: 2,
+      name: 'Technical SEO',
+      colorName: 'Cyan',
+      colorHex: '#06b6d4',
+      badgeText: 'Planet 03 · Cyan',
+      description: 'Improve crawling, indexing, website architecture, structured data, site speed, mobile usability, and Core Web Vitals.',
+      focusAreas: [
+        'Crawling',
+        'Indexing',
+        'Core Web Vitals',
+        'Website performance',
+        'Structured data',
+        'Technical audits'
+      ],
+      contactOption: 'Technical SEO Audit'
+    },
+    'local': {
+      index: 3,
+      name: 'Local SEO',
+      colorName: 'Green',
+      colorHex: '#10b981',
+      badgeText: 'Planet 04 · Green',
+      description: 'Improve local search visibility through business profile optimization, local landing pages, reviews, and consistent business information.',
+      focusAreas: [
+        'Local search rankings',
+        'Google Business Profile optimization',
+        'Local citations',
+        'Reviews',
+        'Local landing pages'
+      ],
+      contactOption: 'Local SEO'
+    },
+    'content': {
+      index: 4,
+      name: 'Content SEO',
+      colorName: 'Orange',
+      colorHex: '#f97316',
+      badgeText: 'Planet 05 · Orange',
+      description: 'Create useful, search-intent-focused content that answers audience questions and builds topical authority.',
+      focusAreas: [
+        'Content strategy',
+        'Search intent',
+        'Topical authority',
+        'Content optimization',
+        'Organic growth'
+      ],
+      contactOption: 'SEO Content Optimization'
+    },
+    'keyword-research': {
+      index: 5,
+      name: 'Keyword Research',
+      colorName: 'Silver-Blue',
+      colorHex: '#94a3b8',
+      badgeText: 'Planet 06 · Silver-Blue',
+      description: 'Discover relevant search terms by analyzing search intent, competition, keyword opportunities, and audience needs.',
+      focusAreas: [
+        'Keyword discovery',
+        'Search demand',
+        'Search intent analysis',
+        'Competitor keyword analysis',
+        'Keyword opportunities'
+      ],
+      contactOption: 'Keyword Research'
+    }
+  };
+
+  const selectPlanet = (planetId) => {
+    if (!PLANET_DATA[planetId]) return;
+    const data = PLANET_DATA[planetId];
+
+    // Update active planet buttons
+    planetButtons.forEach((btn) => {
+      const match = btn.dataset.planetId === planetId;
+      btn.classList.toggle('is-active', match);
+      btn.setAttribute('aria-pressed', String(match));
+    });
+
+    // Update orbit track active classes
+    orbitTracks.forEach((track, idx) => {
+      track.classList.toggle('is-active', idx === data.index);
+    });
+
+    // Update chips
+    chipButtons.forEach((chip) => {
+      const match = chip.dataset.chipId === planetId;
+      chip.classList.toggle('is-active', match);
+      chip.setAttribute('aria-selected', String(match));
+    });
+
+    // Animate info panel update
+    if (infoPanel) {
+      infoPanel.classList.add('is-updating');
+      setTimeout(() => {
+        if (badgeTextEl) badgeTextEl.textContent = data.badgeText;
+        if (badgeEl) {
+          const orb = badgeEl.querySelector('.badge-orb');
+          if (orb) {
+            orb.style.backgroundColor = data.colorHex;
+            orb.style.boxShadow = `0 0 8px ${data.colorHex}`;
+          }
+        }
+        if (titleEl) titleEl.textContent = data.name;
+        if (descEl) descEl.textContent = data.description;
+        
+        if (focusGridEl) {
+          focusGridEl.innerHTML = data.focusAreas
+            .map((item) => `<li><span class="focus-marker" style="background:${data.colorHex};box-shadow:0 0 8px ${data.colorHex};"></span><span>${item}</span></li>`)
+            .join('');
+        }
+
+        if (inquireCtaEl) {
+          inquireCtaEl.dataset.inquireService = data.contactOption;
+          const textSpan = inquireCtaEl.querySelector('span');
+          if (textSpan) textSpan.textContent = `Inquire About ${data.name}`;
+        }
+
+        infoPanel.classList.remove('is-updating');
+      }, 120);
+    }
+  };
+
+  // Wire up planet click / keyboard
+  planetButtons.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      selectPlanet(btn.dataset.planetId);
+    });
+  });
+
+  // Wire up chips click
+  chipButtons.forEach((chip) => {
+    chip.addEventListener('click', (e) => {
+      e.preventDefault();
+      selectPlanet(chip.dataset.chipId);
+    });
+  });
+
+  // Orbit pause toggle
+  if (pauseToggleBtn && solarStage) {
+    let isPaused = false;
+    pauseToggleBtn.addEventListener('click', () => {
+      isPaused = !isPaused;
+      solarStage.classList.toggle('is-paused', isPaused);
+      pauseToggleBtn.classList.toggle('is-paused', isPaused);
+      pauseToggleBtn.innerHTML = `
+        <span class="solar-status-dot"></span>
+        <span class="solar-toggle-text">${isPaused ? 'Paused' : 'Active Orbits'}</span>
+        <i data-lucide="${isPaused ? 'play' : 'pause'}"></i>
+      `;
+      window.lucide?.createIcons({ attrs: { 'stroke-width': 2 } });
+    });
+  }
+
+  // Quick Inquire CTA to WhatsApp selector integration
+  if (inquireCtaEl) {
+    inquireCtaEl.addEventListener('click', (e) => {
+      const serviceVal = inquireCtaEl.dataset.inquireService;
+      const selectEl = document.getElementById('seo-service-select');
+      if (selectEl && serviceVal) {
+        selectEl.value = serviceVal;
+        selectEl.classList.remove('has-error');
+        const errEl = document.getElementById('seo-select-error');
+        if (errEl) errEl.hidden = true;
+      }
+    });
+  }
+})();
+
+
 
