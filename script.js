@@ -400,3 +400,124 @@ if (seoServiceSelect && whatsappEnquiryBtn) {
   });
 }
 
+// SEO Process scroll-triggered reveal animation
+(() => {
+  const processSection = document.getElementById('process');
+  const processGrid = document.querySelector('.process-grid');
+  if (!processSection || !processGrid) return;
+
+  const leftCards = [...processGrid.querySelectorAll('[data-scroll-direction="left"]')];
+  const rightCards = [...processGrid.querySelectorAll('[data-scroll-direction="right"]')];
+  if (!leftCards.length || !rightCards.length) return;
+
+  const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let isIntersecting = false;
+  let rafId = 0;
+  let lastTxLeft = null;
+  let lastTxRight = null;
+
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+  const getResponsiveOffset = () => {
+    if (reducedMotionQuery.matches) return 0;
+    const w = window.innerWidth;
+    if (w >= 1024) return 30;
+    if (w >= 640) return 16;
+    if (w >= 400) return 6;
+    return 0;
+  };
+
+  const updateOffsets = () => {
+    rafId = 0;
+
+    if (!isIntersecting || reducedMotionQuery.matches) {
+      if (lastTxLeft !== 0 || lastTxRight !== 0) {
+        processGrid.style.setProperty('--process-tx-left', '0px');
+        processGrid.style.setProperty('--process-tx-right', '0px');
+        lastTxLeft = 0;
+        lastTxRight = 0;
+      }
+      return;
+    }
+
+    const maxOffset = getResponsiveOffset();
+    if (maxOffset === 0) {
+      if (lastTxLeft !== 0 || lastTxRight !== 0) {
+        processGrid.style.setProperty('--process-tx-left', '0px');
+        processGrid.style.setProperty('--process-tx-right', '0px');
+        lastTxLeft = 0;
+        lastTxRight = 0;
+      }
+      return;
+    }
+
+    const vh = window.innerHeight;
+    const startY = vh * 0.94;
+    const endY = vh * 0.55;
+    const travel = Math.max(1, startY - endY);
+
+    // Row 1 calculation (starts offset right, smoothly slides LEFT to 0)
+    const row1Rect = leftCards[0].getBoundingClientRect();
+    const rawProgress1 = Math.min(1, Math.max(0, (startY - row1Rect.top) / travel));
+    const eased1 = easeOutCubic(rawProgress1);
+    const txLeft = (1 - eased1) * maxOffset;
+
+    // Row 2 calculation (starts offset left, smoothly slides RIGHT to 0)
+    const row2Rect = rightCards[0].getBoundingClientRect();
+    const rawProgress2 = Math.min(1, Math.max(0, (startY - row2Rect.top) / travel));
+    const eased2 = easeOutCubic(rawProgress2);
+    const txRight = -(1 - eased2) * maxOffset;
+
+    const roundedLeft = Number(txLeft.toFixed(2));
+    const roundedRight = Number(txRight.toFixed(2));
+
+    if (roundedLeft !== lastTxLeft) {
+      processGrid.style.setProperty('--process-tx-left', `${roundedLeft}px`);
+      lastTxLeft = roundedLeft;
+    }
+    if (roundedRight !== lastTxRight) {
+      processGrid.style.setProperty('--process-tx-right', `${roundedRight}px`);
+      lastTxRight = roundedRight;
+    }
+  };
+
+  const scheduleUpdate = () => {
+    if (!rafId && isIntersecting && !reducedMotionQuery.matches) {
+      rafId = requestAnimationFrame(updateOffsets);
+    }
+  };
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      isIntersecting = entry.isIntersecting;
+      if (isIntersecting) {
+        window.addEventListener('scroll', scheduleUpdate, { passive: true });
+        window.addEventListener('resize', scheduleUpdate);
+        scheduleUpdate();
+      } else {
+        window.removeEventListener('scroll', scheduleUpdate);
+        window.removeEventListener('resize', scheduleUpdate);
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+      }
+    },
+    { rootMargin: '120px 0px 120px 0px', threshold: 0 }
+  );
+
+  observer.observe(processSection);
+
+  reducedMotionQuery.addEventListener('change', () => {
+    if (reducedMotionQuery.matches) {
+      processGrid.style.setProperty('--process-tx-left', '0px');
+      processGrid.style.setProperty('--process-tx-right', '0px');
+      lastTxLeft = 0;
+      lastTxRight = 0;
+    } else {
+      scheduleUpdate();
+    }
+  });
+})();
+
+
