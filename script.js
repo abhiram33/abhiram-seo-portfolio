@@ -360,3 +360,14 @@ if (riveTransition && riveCanvas && window.rive) {
   riveReducedMotion.addEventListener('change', updateRivePlayback);
   riveTouchOnly.addEventListener('change', updateRivePlayback);
 }
+
+const seoServiceSelect = document.getElementById('seo-service-select');
+const whatsappEnquiryBtn = document.getElementById('whatsapp-enquiry-btn');
+if (seoServiceSelect && whatsappEnquiryBtn) {
+  whatsappEnquiryBtn.addEventListener('click', () => {
+    const selectedService = seoServiceSelect.value || 'General SEO Enquiry';
+    const message = `Hello Abhiram,\n\nI would like to enquire about your SEO services.\n\nService required: ${selectedService}\n\nI found your portfolio and would like to discuss my requirements.\n\nThank you.`;
+    whatsappEnquiryBtn.href = `https://wa.me/918848677810?text=${encodeURIComponent(message)}`;
+  });
+}
+
