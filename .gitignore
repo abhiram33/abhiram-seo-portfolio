@@ -9,3 +9,5 @@ coverage/
 
 /abhiram-seo-portfolio/
 /vanilla-portfolio/
+bun.lock
+src/
